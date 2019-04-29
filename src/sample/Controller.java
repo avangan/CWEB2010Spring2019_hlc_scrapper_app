@@ -1,6 +1,7 @@
 package sample;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -10,18 +11,24 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.awt.*;
+
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Controller {
+
+    @FXML
+    private GridPane grid_parent;
     @FXML
     private PieChart pie_chart;
 
@@ -62,14 +69,17 @@ public class Controller {
     private JFXTextField enrollment_txtbx1;
 
     @FXML
+    private ImageView institution_logo_graphic;
+
+    @FXML
     private JFXComboBox<String> institution_dropdown;
 
     @FXML
     private ImageView app_logo;
+    String imageURL;
 
     HashMap<String, String> institutionNameURL;
     public void initialize() throws IOException {
-
 
         //Create a hashmap that holds the institution name and corresponding url
         institutionNameURL = new HashMap<String, String>();
@@ -98,6 +108,13 @@ public class Controller {
 
     @FXML
     void institution_dropdown(ActionEvent event) throws IOException {
+        institution_logo_graphic.setImage(null);
+
+        //List to hold url's to school logos
+        ArrayList<String> schoolLogo = new ArrayList<>();
+
+
+
         //Gets the URL and stores in String variable
         String selectedURL = institutionNameURL.get(institution_dropdown.getSelectionModel().getSelectedItem());
 
@@ -129,7 +146,6 @@ public class Controller {
         //Targets and sets Type
         type_txtbx.setText(tableBodyChildren.get(3).child(1).text());
 
-
         //Targets and sets Campus Setting
         campus_setting_txtbx.setText(tableBodyChildren.get(5).child(1).text());
 
@@ -146,10 +162,53 @@ public class Controller {
         Element enrollmentValue = doc.select(".mainrow tr th").get(32);
         enrollment_txtbx1.setText(enrollmentValue.text());
 
+
+        switch (institution_dropdown.getSelectionModel().getSelectedItem()) {
+            case "Dunwoody College of Technology":
+                imageURL = "https://www.toyota.com/usa/tten/pub/images/school_profile/Dunwoody/desktop/dunwoody_logo.png";
+                break;
+            case "Augsburg College":
+                imageURL = "https://www.augsburg.edu/wp-content/themes/augsburg-2016-home/augsburg-logo-maroon.png";
+                break;
+            case "North Central University":
+                imageURL = "https://www.filepicker.io/api/file/kPRljyYYTbWelHxRchIK";
+                break;
+            case "Univ. Of Minnesota":
+                imageURL = "https://twin-cities.umn.edu/sites/twin-cities.umn.edu/themes/umn_homesite/images/wordmark-m-d2d-black-maroon-maroon-576w.png";
+                break;
+            case "Hamline University":
+                imageURL = "https://1tskcg39n5iu1jl9xp2ze2ma-wpengine.netdna-ssl.com/wp-content/uploads/2018/07/Hamline-University-User-Story-Logo.png";
+                break;
+            case "Macalester College":
+                imageURL = "https://jobs.diglib.org/wp-content/uploads/sites/20/wpjobboard-20/company/363/company-logo/xmac-primary-logo-spot-blue.png.pagespeed.ic.m710yjg-kI.png";
+                break;
+
+        }
+
+        //Institution Logo
+
+        Image inst_logo = new Image(imageURL);
+        institution_logo_graphic = new ImageView(inst_logo);
+        grid_parent.getChildren().add(institution_logo_graphic);
+        institution_logo_graphic.setFitHeight(75);
+        institution_logo_graphic.setFitWidth(175);
+        institution_logo_graphic.setPreserveRatio(true);
+
     }
 
     @FXML
     void update_institution(ActionEvent event) {
 
+    }
+
+    @FXML
+    void website_clicked(ActionEvent event) {
+        try {
+            Desktop.getDesktop().browse(new URL(website_txtbx.getText()).toURI());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 }
