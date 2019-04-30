@@ -1,4 +1,5 @@
 package sample;
+
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 
@@ -12,6 +13,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.web.WebView;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -77,6 +79,10 @@ public class Controller {
     @FXML
     private ImageView app_logo;
     String imageURL;
+
+    /*@FXML
+    private WebView verse_webv;*/
+
 
     HashMap<String, String> institutionNameURL;
     public void initialize() throws IOException {
@@ -198,7 +204,7 @@ public class Controller {
 
     @FXML
     void update_institution(ActionEvent event) {
-
+        API.getVerse();
     }
 
     @FXML
