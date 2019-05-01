@@ -10,9 +10,11 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -80,8 +82,11 @@ public class Controller {
     private ImageView app_logo;
     String imageURL;
 
-    /*@FXML
-    private WebView verse_webv;*/
+    @FXML
+    private Label scripturelb;
+
+    /**@FXML
+    private WebView scripture_webv;**/
 
 
     HashMap<String, String> institutionNameURL;
@@ -97,9 +102,9 @@ public class Controller {
         institutionNameURL.put("Macalester College", "https://nces.ed.gov/collegenavigator/?s=all&zc=55403&zd=10&of=3&pg=2&id=173902");
 
 
-
-
         institution_dropdown.getItems().addAll(institutionNameURL.keySet());
+
+
 
     }
     @FXML
@@ -204,7 +209,12 @@ public class Controller {
 
     @FXML
     void update_institution(ActionEvent event) {
+
+        scripturelb.setText(API.getVerse());
         API.getVerse();
+
+        /**WebEngine webEngine = scripture_webv.getEngine();
+        webEngine.loadContent(API.getVerse());**/
     }
 
     @FXML
