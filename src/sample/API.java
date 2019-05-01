@@ -39,6 +39,7 @@ public class API {
             //System.out.println(jo);
             JSONObject refined = (JSONObject) jo.get("data");
             verse = (String) refined.get("content");
+            System.out.println(verse);
             doc = Jsoup.parse(verse);
             verse = doc.text();
 

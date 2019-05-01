@@ -211,7 +211,7 @@ public class Controller {
     void update_institution(ActionEvent event) {
 
         scripturelb.setText(API.getVerse());
-        API.getVerse();
+        //API.getVerse();
 
         /**WebEngine webEngine = scripture_webv.getEngine();
         webEngine.loadContent(API.getVerse());**/
