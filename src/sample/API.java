@@ -13,7 +13,6 @@ public class API {
     public static void getVerse(){
         try {
 
-
             URL url = new URL("https://api.scripture.api.bible/v1/bibles/06125adad2d5898a-01/verses/ROM.8.28");//API Connection
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
