@@ -85,8 +85,7 @@ public class Controller {
     @FXML
     private Label scripturelb;
 
-    /**@FXML
-    private WebView scripture_webv;**/
+
 
 
     HashMap<String, String> institutionNameURL;
@@ -104,7 +103,8 @@ public class Controller {
 
         institution_dropdown.getItems().addAll(institutionNameURL.keySet());
 
-
+        //Implementing Verse API
+        scripturelb.setText(API.getVerse());
 
     }
     @FXML
@@ -210,8 +210,7 @@ public class Controller {
     @FXML
     void update_institution(ActionEvent event) {
 
-        scripturelb.setText(API.getVerse());
-        API.getVerse();
+
 
         /**WebEngine webEngine = scripture_webv.getEngine();
         webEngine.loadContent(API.getVerse());**/
