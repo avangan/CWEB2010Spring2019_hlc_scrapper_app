@@ -3,6 +3,8 @@ package sample;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -11,6 +13,8 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -24,12 +28,19 @@ import org.jsoup.select.Elements;
 import java.awt.*;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Controller {
+
+    private static final String USERNAME = "cifulton";
+    private static final String PASSWORD = "4978621e";
+    //Helpful clarification on error I was receiving - https://stackoverflow.com/questions/34189756/warning-about-ssl-connection-when-connecting-to-mysql-database
+    private static final String CONN_STRING = "jdbc:mysql://www.db4free.net:3306/hclinstitution?verifyServerCertificate=false&useSSL=false";
 
     @FXML
     private GridPane grid_parent;
@@ -39,8 +50,6 @@ public class Controller {
     @FXML
     private BarChart<?, ?> bar_chart;
 
-    @FXML
-    private ListView<?> school_database_listview;
 
     @FXML
     private JFXTextField institute_name_txtbx;
@@ -85,12 +94,36 @@ public class Controller {
     @FXML
     private Label scripturelb;
 
+    @FXML
+    private TableView<Institution> school_table;
+
+        @FXML
+        private TableColumn<Institution, String> institution_name_col;
+
+        @FXML
+        private TableColumn<Institution, String> institution_address_col;
+
+        @FXML
+        private TableColumn<Institution, String> institution_website_col;
+
+        @FXML
+        private TableColumn<Institution, String> institution_phone_col;
+
+        @FXML
+        private TableColumn<Institution, String> institution_population_col;
+
+        @FXML
+        private TableColumn<Institution, String> institution_setting_col;
+
+        @FXML
+        private TableColumn<Institution, String> institution_enrollment_col;
+
 
 
 
     HashMap<String, String> institutionNameURL;
-    public void initialize() throws IOException {
-
+    public void initialize() throws IOException, SQLException {
+        updateInstitution();
         //Create a hashmap that holds the institution name and corresponding url
         institutionNameURL = new HashMap<String, String>();
         institutionNameURL.put("Dunwoody College of Technology", "https://nces.ed.gov/collegenavigator/?s=all&zc=55403&zd=10&of=3&pg=1&id=175227" );
@@ -106,6 +139,15 @@ public class Controller {
         //Implementing Verse API
         scripturelb.setText(API.getVerse());
 
+        //Declare List of existing institutions in database
+        ObservableList<Institution> institutionObservableList = FXCollections.observableArrayList();
+
+        // Initialize the institution table columns.
+       /* institution_name_col.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+        institution_address_col.setCellValueFactory(cellData -> cellData.getValue().hoursAttendedProperty());
+        institution_website_col.setCellValueFactory(cellData -> cellData.getValue().hoursMissedProperty());
+        institution_phone_col.setCellValueFactory(cellData -> cellData.getValue().percentAttendedProperty()); */
+
     }
     @FXML
     void delete_institution(ActionEvent event) {
@@ -113,7 +155,33 @@ public class Controller {
     }
 
     @FXML
-    void enter_institution(ActionEvent event) {
+    void enter_institution(ActionEvent event) throws SQLException {
+
+        Connection conn = null;
+
+        conn = DriverManager.getConnection(CONN_STRING, USERNAME, PASSWORD);
+        System.out.println("Connected!");
+
+
+        //Prepared SQL Statement using paramertized queries
+        String sql = "INSERT INTO Institution (instName, instAddress, instWebsite, instPhone, instCampSetting, instHousing, instPopulation, instStuFacRatio, instEnrollment)" +
+                "VALUES (?, ?,?,?,?,?,?,?,?)";
+        PreparedStatement preparedStatement = conn.prepareStatement(sql);
+        preparedStatement.setString(1, institute_name_txtbx.getText());
+        preparedStatement.setString(2, address_txtbx1.getText());
+        preparedStatement.setString(3, website_txtbx.getText());
+        preparedStatement.setString(4, phone_txtbx.getText());
+        preparedStatement.setString(5, campus_setting_txtbx.getText());
+        preparedStatement.setString(6, housing_txtbx.getText());
+        preparedStatement.setString(7, stu_population_txtbx.getText());
+        preparedStatement.setString(8, ratio_txtbx.getText());
+        preparedStatement.setString(9, enrollment_txtbx1.getText());
+
+        preparedStatement.executeUpdate();
+        System.out.println("Record Inserted");
+
+
+
 
     }
 
@@ -218,11 +286,77 @@ public class Controller {
     @FXML
     void website_clicked(ActionEvent event) {
         try {
-            Desktop.getDesktop().browse(new URL(website_txtbx.getText()).toURI());
+            Desktop.getDesktop().browse(new URI("https://" +website_txtbx.getText()));
         } catch (IOException e) {
             e.printStackTrace();
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+    }
+
+    void updateInstitution() throws SQLException {
+
+
+        ObservableList<Institution> instList = FXCollections.observableArrayList();
+        String name ="", address="", website="", instPhone="", instCampSetting="", instHousing="", instPopulation="", instStuFacRatio="", instEnrollment="";
+
+        Connection conn1 = null; Statement institution_stmt = null; ResultSet rs1 = null;
+        // Initialize the database institution table columns.
+        institution_name_col.setCellValueFactory(cellData -> cellData.getValue().getName());
+        institution_address_col.setCellValueFactory(cellData -> cellData.getValue().getAddress());
+        institution_website_col.setCellValueFactory(cellData -> cellData.getValue().getWebsite());
+        institution_phone_col.setCellValueFactory(cellData -> cellData.getValue().getPhone());
+        institution_population_col.setCellValueFactory(cellData -> cellData.getValue().getPopulation());
+        institution_setting_col.setCellValueFactory(cellData -> cellData.getValue().getSetting());
+        institution_enrollment_col.setCellValueFactory(cellData -> cellData.getValue().getEnrollment());
+
+        try {
+            conn1 = DriverManager.getConnection(CONN_STRING, USERNAME, PASSWORD);
+            System.out.println("Connected!");
+
+            //generate query command to retrieve records
+            String sql_getInstitution_query = "SELECT instName, instAddress, instWebsite, instPhone, instCampSetting, instHousing, instPopulation, instStuFacRatio, instEnrollment FROM Institution";
+            rs1 = null;
+            // create the java statement
+            institution_stmt = conn1.createStatement();
+            rs1 = institution_stmt.executeQuery(sql_getInstitution_query);
+
+
+
+
+            //Iterate through database and grab all records
+            while(rs1.next()) {
+
+                name = rs1.getString(1);
+                address = rs1.getString(2);
+                website = rs1.getString(3);
+                instPhone = rs1.getString(4);
+                instCampSetting = rs1.getString(5);
+                instHousing = rs1.getString(6);
+                instPopulation = rs1.getString(7);
+                instStuFacRatio = rs1.getString(8);
+                instEnrollment = rs1.getString(9);
+
+                instList.add(new Institution(name, address, website, instPhone, instCampSetting, instHousing, instPopulation, instStuFacRatio, instEnrollment));
+                System.out.println(name+ address+ website+ instPhone+ instCampSetting + instHousing + instPopulation + instStuFacRatio+ instEnrollment);
+            }//End of while
+            school_table.setItems(instList);
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            System.err.println(e);
+        }finally{
+            if(rs1 != null){
+                rs1.close();
+            }
+            if(institution_stmt != null){
+                institution_stmt.close();
+            }
+            if(conn1 != null){
+                conn1.close();
+            }
+        }
+
+
+
     }
 }
